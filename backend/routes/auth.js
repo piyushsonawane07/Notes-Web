@@ -18,10 +18,13 @@ router.post('/createuser', [
     body('password',"Password must be atleast 5 charecters").isLength({ min: 5 })
 ], async (req, res) => {
 
+    let success = false;
+
     const errors = validationResult(req);
     
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      success = false;
+      return res.status(400).json({success, errors: errors.array() });
     }
 
     
@@ -30,7 +33,8 @@ router.post('/createuser', [
     let user = await User.findOne({email : req.body.email})
 
     if(user){
-      return res.status(400).json({ errors: "Sorry user with this email already exist" }); 
+      success = false;
+      return res.status(400).json({success, errors: "Sorry user with this email already exist" }); 
     }
 
     const salt  = await bcrypt.genSalt(10);
@@ -50,8 +54,8 @@ router.post('/createuser', [
     }
 
     const authToken = jwt.sign(data,JWT_SECRET);
-
-    res.json({authToken});
+    success=true; 
+    res.json({success,authToken});
 
   }catch(error){
     console.error(error.message);
@@ -66,9 +70,12 @@ router.post('/login',[
   body('password','Password Cannot be blank !').exists()
 ],async (req,res)=> {
 
+    let success = false;
+
     const errors = validationResult(req); 
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      success=false;
+      return res.status(400).json({success,errors: errors.array() });
     }
 
     const {email,password} = req.body;
@@ -76,12 +83,14 @@ router.post('/login',[
     try {
       let user = await User.findOne({email});
       if(!user){
-        return res.status(400).json({error:'Please Check your Credentials!'});
+        success = false;
+        return res.status(400).json({success,error:'Please Check your Credentials!'});
       }
 
       const passCmp = await bcrypt.compare(password,user.password);
       if(!passCmp){
-        return res.status(400).json({error:'Please Check your Credentials!'});
+        success = false;
+        return res.status(400).json({success,error:'Please Check your Credentials!'});
       }
 
       const data = {
@@ -91,7 +100,8 @@ router.post('/login',[
       }
 
       const authToken = jwt.sign(data,JWT_SECRET);
-      res.json({authToken});
+      success = true;
+      res.json({success,authToken});
 
     } catch (error) {
       console.error(error.message);

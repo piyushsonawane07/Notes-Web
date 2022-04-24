@@ -11,3 +11,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+i{
+  cursor:pointer;
+}
+
+.addnote{
+  background-color: #ddddddb9;
+  border-radius: 30px;
+  padding: 40px;
+}
+
+
+.card{
+  border-left: 8px solid #e9d94f;
+  border-radius: 10px;
+}
